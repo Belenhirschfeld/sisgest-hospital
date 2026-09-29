@@ -1,0 +1,756 @@
+<title>SisGest — Login</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+:root {
+  --primary: #0066cc;
+  --primary-light: #e6f2ff;
+  --text: #1a1a1a;
+  --text-muted: #727272;
+  --bg: #ffffff;
+  --bg-secondary: #f9f9f9;
+  --divider: #e8e8e8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #3b82f6;
+    --primary-light: #1e3a8a;
+    --text: #f5f5f5;
+    --text-muted: #a8a8a8;
+    --bg: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --divider: #2a2a2a;
+  }
+}
+
+:root[data-theme="dark"] {
+  --primary: #3b82f6;
+  --text: #f5f5f5;
+  --text-muted: #a8a8a8;
+  --bg: #0d0d0d;
+  --bg-secondary: #1a1a1a;
+  --divider: #2a2a2a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+input::placeholder {
+  color: var(--text-muted);
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.95rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.login-button:hover {
+  opacity: 0.9;
+}
+
+.demo-info {
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+}
+
+.demo-info code {
+  background: var(--bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-button.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.tab-button:not(.active) {
+  color: var(--text-muted);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+#modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+#modalOverlay.hidden {
+  display: none !important;
+}
+
+.modal {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+}
+</style>
+
+<div class="login-container" id="app">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">SisGest</div>
+      <p class="login-subtitle">Sistema de Control de Stock</p>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" placeholder="ej: maria.lopez" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="Ingresá tu contraseña" required>
+      </div>
+      <button type="submit" class="login-button">Ingresar</button>
+    </form>
+
+    <div class="demo-info">
+      <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">📋 Acceso Demo</div>
+      <p style="margin: 0.4rem 0;"><strong>Usuario:</strong> <code>demo</code></p>
+      <p style="margin: 0.4rem 0;"><strong>Contraseña:</strong> <code>demo123</code></p>
+      <p style="margin-top: 0.75rem; font-style: italic;">Probá con estas credenciales para acceder al sistema.</p>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay" class="hidden">
+  <div id="modalContent" class="modal"></div>
+</div>
+
+<script>
+// Datos simulados con categorización en 3 niveles
+let usuarioActual = 'demo';
+let medicamentos = [
+  { id: 1, nombre: 'Suero Fisiológico 500ml', cantidad: 150, minimo: 50, vencimiento: '2026-12-15', tipo: 'Medicamentos', categoria: 'Sueros y soluciones', subcategoria: 'Sueros básicos', icono: '💊' },
+  { id: 2, nombre: 'Gasas Estériles 10x10', cantidad: 200, minimo: 50, vencimiento: '2026-11-20', tipo: 'Insumos', categoria: 'Material de curación', subcategoria: 'Gasas', icono: '🧴' },
+  { id: 3, nombre: 'Ampicilina 250mg', cantidad: 45, minimo: 100, vencimiento: '2026-10-15', tipo: 'Medicamentos', categoria: 'Antibióticos', subcategoria: 'Beta-lactámicos', icono: '💊' },
+  { id: 4, nombre: 'Ibupirac 400mg', cantidad: 120, minimo: 50, vencimiento: '2026-10-18', tipo: 'Medicamentos', categoria: 'Analgésicos', subcategoria: 'AINES', icono: '💊' },
+  { id: 5, nombre: 'Sutura Quirúrgica 2-0', cantidad: 35, minimo: 20, vencimiento: '2027-03-15', tipo: 'Insumos', categoria: 'Material quirúrgico', subcategoria: 'Suturas', icono: '🧵' },
+  { id: 6, nombre: 'Termómetro Digital', cantidad: 8, minimo: 5, vencimiento: '2028-06-20', tipo: 'Aparatos', categoria: 'Equipos de medición', subcategoria: 'Termometría', icono: '🌡️' },
+  { id: 7, nombre: 'Ácido Acetilsalícílico 500mg', cantidad: 95, minimo: 50, vencimiento: '2026-11-10', tipo: 'Medicamentos', categoria: 'Analgésicos', subcategoria: 'AINES', icono: '💊' },
+];
+
+// Definición de tipos con iconos
+const tiposProducto = {
+  'Medicamentos': '💊',
+  'Insumos': '🧴',
+  'Aparatos': '🌡️'
+};
+
+let filtroActual = { tipo: '', categoria: '', estado: '' };
+
+let historial = [
+  { id: 1, tipo: 'Login', medicamento: '-', cantidad: '-', usuario: 'María López', fecha: '2026-09-28', hora: '14:25', detalles: 'Ingreso al sistema' },
+  { id: 2, tipo: 'Ingreso', medicamento: 'Suero Fisiológico 500ml', cantidad: 50, usuario: 'María López', fecha: '2026-09-28', hora: '14:32', detalles: 'Ingreso de stock' },
+  { id: 3, tipo: 'Salida', medicamento: 'Gasas Estériles 10x10', cantidad: 12, usuario: 'Carlos Rodríguez', fecha: '2026-09-28', hora: '13:47', detalles: 'Utilización en pabellón' },
+  { id: 4, tipo: 'Ingreso', medicamento: 'Acido Acetilsalícílico 500mg', cantidad: 100, usuario: 'María López', fecha: '2026-09-28', hora: '11:15', detalles: 'Compra proveedora' },
+  { id: 5, tipo: 'Salida', medicamento: 'Sutura Quirúrgica 2-0', cantidad: 5, usuario: 'Roberto Martínez', fecha: '2026-09-28', hora: '09:52', detalles: 'Procedimiento quirúrgico' },
+  { id: 6, tipo: 'Login', medicamento: '-', cantidad: '-', usuario: 'Carlos Rodríguez', fecha: '2026-09-28', hora: '08:30', detalles: 'Ingreso al sistema' },
+];
+
+function handleLogin(event) {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if (username === 'demo' && password === 'demo123') {
+    usuarioActual = username;
+    registrarEnHistorial('Login', '-', '-', `Ingreso al sistema`);
+    window.location.href = '#dashboard';
+    setTimeout(() => renderDashboard(), 300);
+  } else {
+    alert('Usuario o contraseña incorrectos.\n\nProbá con:\nUsuario: demo\nContraseña: demo123');
+  }
+}
+
+function renderDashboard() {
+  const app = document.getElementById('app');
+  const metricas = actualizarMetricas();
+
+  app.innerHTML = `
+    <div style="width: 100%; max-width: 1400px; padding: 20px; margin: 0 auto;">
+      <header style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--divider); margin-bottom: 1rem;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">SisGest</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span style="color: var(--text-muted); font-size: 0.9rem;">👤 ${usuarioActual}</span>
+          <button onclick="logout()" style="padding: 0.6rem 1.25rem; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Cerrar Sesión</button>
+        </div>
+      </header>
+
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--divider); flex-wrap: wrap;">
+        <button class="tab-button active" onclick="cambiarTab('dashboard')" id="btnDashboard">📊 Dashboard</button>
+        <button class="tab-button" onclick="cambiarTab('categorias')" id="btnCategorias">🏷️ Vista por Categoría</button>
+        <button class="tab-button" onclick="cambiarTab('historial')" id="btnHistorial">📋 Historial Completo</button>
+      </div>
+
+      <div id="dashboardTab" class="tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+          <div>
+            <h1 style="margin: 0 0 0.5rem 0; font-size: 2rem;">Gestión de Stock</h1>
+            <p style="color: var(--text-muted); margin: 0;">Medicamentos e insumos hospitalarios en tiempo real</p>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button onclick="abrirModalAgregar()" style="padding: 0.85rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: opacity 0.2s;">
+              ➕ Agregar Medicamento
+            </button>
+            <button onclick="abrirModalSalida()" style="padding: 0.85rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: opacity 0.2s;">
+              📤 Registrar Salida
+            </button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+          <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.75rem;">Stock Total</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">${metricas.total}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);">items en inventario</div>
+          </div>
+          <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.75rem;">Vencimientos Próximos</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #f59e0b; margin-bottom: 0.5rem;">${metricas.vencidos}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);">en los próximos 30 días</div>
+          </div>
+          <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 1.5rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.75rem;">Stock Bajo</div>
+            <div style="font-size: 2.5rem; font-weight: 700; color: #ef4444; margin-bottom: 0.5rem;">${metricas.bajos}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);">items por debajo del mínimo</div>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 2rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h2 style="margin: 0; font-size: 1.25rem;">Inventario Actual</h2>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <select id="filtroTipo" onchange="aplicarFiltros()" style="padding: 0.6rem 0.8rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg); font-size: 0.9rem;">
+                <option value="">Todos los tipos</option>
+                <option value="Medicamentos">💊 Medicamentos</option>
+                <option value="Insumos">🧴 Insumos</option>
+                <option value="Aparatos">🌡️ Aparatos</option>
+              </select>
+              <select id="filtroEstado" onchange="aplicarFiltros()" style="padding: 0.6rem 0.8rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg); font-size: 0.9rem;">
+                <option value="">Todos los estados</option>
+                <option value="bajo">🔴 Stock bajo</option>
+                <option value="vencimiento">🟠 Próximo vencimiento</option>
+                <option value="ok">🟢 OK</option>
+              </select>
+              <button onclick="limpiarFiltros()" style="padding: 0.6rem 1rem; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Limpiar</button>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary);">
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Producto</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Tipo</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Categoría</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Stock</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Mínimo</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Vencimiento</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaInventario">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 2rem;">
+          <h2 style="margin: 0 0 1.5rem 0; font-size: 1.25rem;">Últimos Movimientos</h2>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary);">
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Medicamento</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Tipo</th>
+                  <th style="text-align: right; padding: 0.75rem; font-weight: 600;">Cantidad</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Usuario</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Fecha</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${historial.filter(m => ['Ingreso', 'Salida'].includes(m.tipo)).slice().reverse().slice(0, 10).map(m => `
+                  <tr style="border-bottom: 1px solid var(--divider);">
+                    <td style="padding: 1rem 0.75rem;">${m.medicamento}</td>
+                    <td style="text-align: center; padding: 1rem 0.75rem;"><span style="background: ${m.tipo === 'Ingreso' ? '#10b981' : '#3b82f6'}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">${m.tipo}</span></td>
+                    <td style="text-align: right; padding: 1rem 0.75rem; color: ${m.tipo === 'Ingreso' ? '#10b981' : '#3b82f6'}; font-weight: 600;">${m.tipo === 'Ingreso' ? '+' : '-'}${m.cantidad}</td>
+                    <td style="padding: 1rem 0.75rem; color: var(--text-muted);">${m.usuario}</td>
+                    <td style="padding: 1rem 0.75rem; color: var(--text-muted);">${m.fecha}</td>
+                    <td style="padding: 1rem 0.75rem; color: var(--text-muted);">${m.hora}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="categoriasTab" class="tab-content">
+        <div id="vistaCategorias"></div>
+      </div>
+
+      <div id="historialTab" class="tab-content">
+        <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 2rem;">
+          <h2 style="margin: 0 0 1.5rem 0; font-size: 1.25rem;">Historial Completo de Movimientos</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Todos los movimientos realizados en el sistema, incluyendo ingresos, salidas y accesos de usuarios.</p>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--primary);">
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Tipo</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Medicamento</th>
+                  <th style="text-align: center; padding: 0.75rem; font-weight: 600;">Cantidad</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Usuario</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Fecha</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Hora</th>
+                  <th style="text-align: left; padding: 0.75rem; font-weight: 600;">Detalles</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${historial.slice().reverse().map(m => {
+                  let colorTipo = '#727272';
+                  if (m.tipo === 'Ingreso') colorTipo = '#10b981';
+                  if (m.tipo === 'Salida') colorTipo = '#3b82f6';
+                  if (m.tipo === 'Login') colorTipo = '#6366f1';
+
+                  return `
+                    <tr style="border-bottom: 1px solid var(--divider);">
+                      <td style="padding: 1rem 0.75rem;"><span style="background: ${colorTipo}; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${m.tipo}</span></td>
+                      <td style="padding: 1rem 0.75rem;">${m.medicamento}</td>
+                      <td style="text-align: center; padding: 1rem 0.75rem; font-weight: 600; color: ${m.cantidad === '-' ? 'var(--text-muted)' : colorTipo};">${m.cantidad}</td>
+                      <td style="padding: 1rem 0.75rem;">${m.usuario}</td>
+                      <td style="padding: 1rem 0.75rem; color: var(--text-muted);">${m.fecha}</td>
+                      <td style="padding: 1rem 0.75rem; color: var(--text-muted);">${m.hora}</td>
+                      <td style="padding: 1rem 0.75rem; color: var(--text-muted); font-size: 0.85rem;">${m.detalles}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--divider); color: var(--text-muted); font-size: 0.85rem;">
+        <p style="margin: 0;">SisGest © 2026 — Auditoría y Control de Stock</p>
+      </div>
+    </div>
+  `;
+
+  // Actualizar tabla de inventario
+  setTimeout(() => {
+    actualizarTablaInventario();
+    renderVistaCategorias();
+  }, 100);
+}
+
+function cambiarTab(tab) {
+  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+  if (tab === 'dashboard') {
+    document.getElementById('btnDashboard').classList.add('active');
+    document.getElementById('dashboardTab').classList.add('active');
+    actualizarTablaInventario();
+  } else if (tab === 'categorias') {
+    document.getElementById('btnCategorias').classList.add('active');
+    document.getElementById('categoriasTab').classList.add('active');
+    renderVistaCategorias();
+  } else {
+    document.getElementById('btnHistorial').classList.add('active');
+    document.getElementById('historialTab').classList.add('active');
+  }
+}
+
+function actualizarMetricas() {
+  let total = medicamentos.reduce((sum, m) => sum + m.cantidad, 0);
+  let vencidos = medicamentos.filter(m => {
+    const dias = Math.floor((new Date(m.vencimiento) - new Date()) / (1000 * 60 * 60 * 24));
+    return dias <= 30 && dias > 0;
+  }).length;
+  let bajos = medicamentos.filter(m => m.cantidad < m.minimo).length;
+  return { total, vencidos, bajos };
+}
+
+function registrarEnHistorial(tipo, medicamento, cantidad, detalles) {
+  const ahora = new Date();
+  historial.push({
+    id: Math.max(...historial.map(m => m.id), 0) + 1,
+    tipo,
+    medicamento,
+    cantidad,
+    usuario: usuarioActual,
+    fecha: ahora.toLocaleDateString('es-AR'),
+    hora: ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+    detalles
+  });
+}
+
+function abrirModalAgregar() {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  overlay.classList.remove('hidden');
+  content.innerHTML = `
+    <h2 style="margin: 0 0 1.5rem 0;">Agregar Medicamento</h2>
+    <form onsubmit="guardarMedicamento(event)" style="max-height: 80vh; overflow-y: auto; padding-right: 1rem;">
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Tipo de Producto</label>
+        <select id="tipo" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+          <option value="">Seleccionar tipo...</option>
+          <option value="Medicamentos">💊 Medicamentos</option>
+          <option value="Insumos">🧴 Insumos</option>
+          <option value="Aparatos">🌡️ Aparatos</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Categoría</label>
+        <input type="text" id="categoria" required placeholder="Ej: Sueros y soluciones" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Subcategoría</label>
+        <input type="text" id="subcategoria" required placeholder="Ej: Sueros básicos" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Nombre</label>
+        <input type="text" id="nombre" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Cantidad Inicial</label>
+        <input type="number" id="cantidad" required min="1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Stock Mínimo</label>
+        <input type="number" id="minimo" required min="1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Fecha de Vencimiento</label>
+        <input type="date" id="vencimiento" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" style="flex: 1; padding: 0.85rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Guardar</button>
+        <button type="button" onclick="cerrarModal()" style="flex: 1; padding: 0.85rem; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: 600;">Cancelar</button>
+      </div>
+    </form>
+  `;
+}
+
+function abrirModalSalida() {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  overlay.classList.remove('hidden');
+  content.innerHTML = `
+    <h2 style="margin: 0 0 1.5rem 0;">Registrar Salida</h2>
+    <form onsubmit="guardarSalida(event)">
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Medicamento</label>
+        <select id="medicamentoId" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+          <option value="">Seleccionar medicamento...</option>
+          ${medicamentos.map(m => `<option value="${m.id}">${m.nombre} (Stock: ${m.cantidad})</option>`).join('')}
+        </select>
+      </div>
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Cantidad</label>
+        <input type="number" id="cantidadSalida" required min="1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Detalles (p. ej: pabellón, procedimiento)</label>
+        <input type="text" id="detallesSalida" placeholder="Ej: Procedimiento quirúrgico" style="width: 100%; padding: 0.75rem; border: 1px solid var(--divider); border-radius: 6px; font-family: inherit; color: var(--text); background: var(--bg);">
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" style="flex: 1; padding: 0.85rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Registrar Salida</button>
+        <button type="button" onclick="cerrarModal()" style="flex: 1; padding: 0.85rem; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 6px; cursor: pointer; font-weight: 600;">Cancelar</button>
+      </div>
+    </form>
+  `;
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function guardarMedicamento(e) {
+  e.preventDefault();
+  const tipo = document.getElementById('tipo').value;
+  const categoria = document.getElementById('categoria').value;
+  const subcategoria = document.getElementById('subcategoria').value;
+  const nombre = document.getElementById('nombre').value;
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+  const minimo = parseInt(document.getElementById('minimo').value);
+  const vencimiento = document.getElementById('vencimiento').value;
+  const icono = tiposProducto[tipo] || '📦';
+
+  const id = Math.max(...medicamentos.map(m => m.id), 0) + 1;
+  medicamentos.push({ id, nombre, cantidad, minimo, vencimiento, tipo, categoria, subcategoria, icono });
+
+  registrarEnHistorial('Ingreso', nombre, cantidad, 'Ingreso de nuevo medicamento al inventario');
+  cerrarModal();
+  renderDashboard();
+}
+
+function guardarSalida(e) {
+  e.preventDefault();
+  const medId = parseInt(document.getElementById('medicamentoId').value);
+  const cantidad = parseInt(document.getElementById('cantidadSalida').value);
+  const detalles = document.getElementById('detallesSalida').value || 'Salida de medicamento';
+  const medicamento = medicamentos.find(m => m.id === medId);
+
+  if (!medicamento || medicamento.cantidad < cantidad) {
+    alert('Stock insuficiente');
+    return;
+  }
+
+  medicamento.cantidad -= cantidad;
+  registrarEnHistorial('Salida', medicamento.nombre, cantidad, detalles);
+  cerrarModal();
+  renderDashboard();
+}
+
+function eliminarMedicamento(id) {
+  if (confirm('¿Eliminar este medicamento del inventario?')) {
+    const medicamento = medicamentos.find(m => m.id === id);
+    medicamentos = medicamentos.filter(m => m.id !== id);
+    registrarEnHistorial('Eliminación', medicamento.nombre, '-', 'Medicamento eliminado del inventario');
+    renderDashboard();
+  }
+}
+
+function aplicarFiltros() {
+  filtroActual.tipo = document.getElementById('filtroTipo').value;
+  filtroActual.estado = document.getElementById('filtroEstado').value;
+  actualizarTablaInventario();
+}
+
+function limpiarFiltros() {
+  filtroActual = { tipo: '', categoria: '', estado: '' };
+  document.getElementById('filtroTipo').value = '';
+  document.getElementById('filtroEstado').value = '';
+  actualizarTablaInventario();
+}
+
+function actualizarTablaInventario() {
+  let medicamentosFiltrados = medicamentos;
+
+  if (filtroActual.tipo) {
+    medicamentosFiltrados = medicamentosFiltrados.filter(m => m.tipo === filtroActual.tipo);
+  }
+
+  if (filtroActual.estado) {
+    medicamentosFiltrados = medicamentosFiltrados.filter(m => {
+      const diasVencimiento = Math.floor((new Date(m.vencimiento) - new Date()) / (1000 * 60 * 60 * 24));
+      if (filtroActual.estado === 'bajo') return m.cantidad < m.minimo;
+      if (filtroActual.estado === 'vencimiento') return diasVencimiento <= 30 && diasVencimiento > 0;
+      if (filtroActual.estado === 'ok') return m.cantidad >= m.minimo && diasVencimiento > 30;
+      return true;
+    });
+  }
+
+  const tbody = document.getElementById('tablaInventario');
+  tbody.innerHTML = medicamentosFiltrados.map(m => {
+    const diasVencimiento = Math.floor((new Date(m.vencimiento) - new Date()) / (1000 * 60 * 60 * 24));
+    const estado = m.cantidad < m.minimo ? '#ef4444' : diasVencimiento <= 30 ? '#f59e0b' : '#10b981';
+    const estadoLabel = m.cantidad < m.minimo ? '🔴' : diasVencimiento <= 30 ? '🟠' : '🟢';
+
+    return `
+      <tr style="border-bottom: 1px solid var(--divider);">
+        <td style="padding: 1rem 0.75rem;">${m.icono} ${m.nombre}</td>
+        <td style="text-align: center; padding: 1rem 0.75rem; font-size: 0.85rem;"><span style="background: var(--primary-light); color: var(--primary); padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 500;">${m.tipo}</span></td>
+        <td style="text-align: center; padding: 1rem 0.75rem; font-size: 0.85rem; color: var(--text-muted);">${m.categoria}</td>
+        <td style="text-align: center; padding: 1rem 0.75rem; font-weight: 600; color: ${estado};">${estadoLabel} ${m.cantidad}</td>
+        <td style="text-align: center; padding: 1rem 0.75rem;">${m.minimo}</td>
+        <td style="text-align: center; padding: 1rem 0.75rem; color: var(--text-muted);">${new Date(m.vencimiento).toLocaleDateString('es-AR')}</td>
+        <td style="text-align: center; padding: 1rem 0.75rem;">
+          <button onclick="eliminarMedicamento(${m.id})" style="padding: 0.4rem 0.8rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Eliminar</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderVistaCategorias() {
+  // Agrupar medicamentos por tipo y categoría
+  const agrupados = {};
+
+  medicamentos.forEach(m => {
+    if (!agrupados[m.tipo]) agrupados[m.tipo] = {};
+    if (!agrupados[m.tipo][m.categoria]) agrupados[m.tipo][m.categoria] = [];
+    agrupados[m.tipo][m.categoria].push(m);
+  });
+
+  const container = document.getElementById('vistaCategorias');
+  let html = '';
+
+  Object.keys(agrupados).forEach(tipo => {
+    html += `
+      <div style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <span style="font-size: 1.5rem;">${tiposProducto[tipo]}</span>
+          <h2 style="margin: 0; font-size: 1.5rem; color: var(--primary);">${tipo}</h2>
+          <span style="background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${Object.values(agrupados[tipo]).reduce((sum, arr) => sum + arr.length, 0)} items</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+          ${Object.keys(agrupados[tipo]).map(categoria => `
+            <div style="background: var(--bg-secondary); border: 1px solid var(--divider); border-radius: 8px; padding: 1.5rem;">
+              <h3 style="margin: 0 0 1rem 0; font-size: 1.05rem; color: var(--text);">${categoria}</h3>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                ${agrupados[tipo][categoria].map(m => {
+                  const diasVencimiento = Math.floor((new Date(m.vencimiento) - new Date()) / (1000 * 60 * 60 * 24));
+                  const estado = m.cantidad < m.minimo ? '🔴' : diasVencimiento <= 30 ? '🟠' : '🟢';
+                  const color = m.cantidad < m.minimo ? '#ef4444' : diasVencimiento <= 30 ? '#f59e0b' : '#10b981';
+
+                  return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg); border-radius: 6px; border-left: 3px solid ${color};">
+                      <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.95rem;">${m.icono} ${m.nombre}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${m.subcategoria}</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-weight: 700; color: ${color}; font-size: 1.1rem;">${estado} ${m.cantidad}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">de ${m.minimo}</div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function logout() {
+  registrarEnHistorial('Logout', '-', '-', 'Cierre de sesión');
+  window.location.hash = '';
+  location.reload();
+}
+
+if (window.location.hash === '#dashboard') {
+  renderDashboard();
+}
+</script>
